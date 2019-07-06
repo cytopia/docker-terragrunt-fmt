@@ -1,9 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Be strict
 set -e
 set -u
-set -o pipefail
 
 
 # --------------------------------------------------------------------------------
@@ -52,60 +51,6 @@ print_usage() {
 	echo
 	echo "  -ignore=a,b    Comma separated list of paths to ignore."
 	echo "                 The wildcard character '*' is supported."
-}
-
-
-_fmt() {
-	local list="${1}"
-	local write="${2}"
-	local diff="${3}"
-	local check="${4}"
-	local file="${5}"
-	# shellcheck disable=SC2155
-	local temp="/tmp/$(basename "${file}").tf"
-	local ret=0
-
-	# Build command (only append if default values are overwritten)
-	local cmd="terraform fmt"
-	if [ "${list}" = "0" ]; then
-		cmd="${cmd} -list=false"
-	else
-		cmd="${cmd} -list=true"
-	fi
-	if [ "${write}" = "1" ]; then
-		cmd="${cmd} -write=true"
-	else
-		cmd="${cmd} -write=false"
-	fi
-	if [ "${diff}" = "1" ]; then
-		cmd="${cmd} -diff"
-	fi
-	if [ "${check}" = "1" ]; then
-		cmd="${cmd} -check"
-	fi
-
-	# Output and execute command
-	echo "${cmd} ${file}"
-	cp -f "${file}" "${temp}"
-	if ! eval "${cmd} ${temp}"; then
-		ret=$(( ret + 1 ))
-	fi
-
-	# If -write was specified, copy file back
-	if [ "${write}" = "1" ]; then
-		# Get owner and permissions of current file
-		_UID="$(stat -c %u "${file}")"
-		_GID="$(stat -c %g "${file}")"
-		_PERM="$(stat -c %a "${file}")"
-
-		# Adjust permissions of temporary file
-		chown ${_UID}:${_GID} "${temp}"
-		chmod ${_PERM} "${temp}"
-
-		# Overwrite existing file
-		mv -f "${temp}" "${file}"
-	fi
-	return "${ret}"
 }
 
 
@@ -301,7 +246,7 @@ fi
 ### (1/3) Single file
 ###
 if [ -f "${ARG_PATH}" ]; then
-	_fmt "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${ARG_PATH}"
+	/fmt.sh "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${ARG_PATH}"
 	exit "${?}"
 else
 	###
@@ -311,33 +256,37 @@ else
 
 		# evaluate ignore paths
 		if [ -n "${ARG_IGNORE}" ]; then
-			_EXCLUDE=" -not \( -path \"${ARG_PATH}/${ARG_IGNORE//,/*\" -o -path \"${ARG_PATH}\/}*\" \)"
+			_EXCLUDE=" -not \( -path \"${ARG_PATH}/$( echo "${ARG_IGNORE}" | sed 's/,/*/g' )\" -o -path \"${ARG_PATH}\/}*\" \)"
 		else
 			_EXCLUDE=""
 		fi
 
-		find_cmd="find ${ARG_PATH}${_EXCLUDE} -name '*.hcl' -type f -print0"
+		# Store exit code
+		echo "0" > "/tmp/exit.txt"
+
+		find_cmd="find ${ARG_PATH}${_EXCLUDE} -name '*.hcl' -type f"
 		echo "[INFO] Finding files: ${find_cmd}"
-		ret=0
-		while IFS= read -rd '' file; do
-			if ! _fmt "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${file}"; then
-				ret="1"
-			fi
-		done < <(eval "${find_cmd}")
-		exit "${ret}"
+		eval "${find_cmd} -print0 | xargs -n1 -0 sh -c '\
+			if [ -f \"\${1}\" ]; then \
+				if ! /fmt.sh \"${ARG_LIST}\" \"${ARG_WRITE}\" \"${ARG_DIFF}\" \"${ARG_CHECK}\" \"\${1}\"; then \
+					echo 1 > /tmp/exit.txt; \
+				fi \
+			fi' --"
+
+		# Read exit code and return it
+		exit "$( cat /tmp/exit.txt )"
 
 	###
 	### (3/3) Current directory only
 	###
 	else
-		find_cmd="ls ${ARG_PATH}/*.hcl"
-		echo "[INFO] Finding files: ${find_cmd}"
+		echo "[INFO] Finding files: for file in *.hcl; do"
 		ret=0
-		while IFS= read -r file; do
-			if ! _fmt "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${file}"; then
+		for file in *.hcl; do
+			if ! /fmt.sh "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${file}"; then
 				ret="1"
 			fi
-		done < <(eval "${find_cmd}" 2>/dev/null)
+		done
 		exit "${ret}"
 	fi
 fi

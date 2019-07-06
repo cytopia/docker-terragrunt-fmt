@@ -37,10 +37,9 @@ FROM alpine:3.9
 LABEL \
 	maintainer="cytopia <cytopia@everythingcli.org>" \
 	repo="https://github.com/cytopia/docker-terragrunt-fmt"
-RUN set -eux \
-	&& apk add --no-cache bash
 COPY --from=builder /usr/bin/terraform /usr/bin/terraform
 COPY data/terragrunt-fmt.sh /terragrunt-fmt.sh
+COPY data/fmt.sh /fmt.sh
 
 WORKDIR /data
 ENTRYPOINT ["/terragrunt-fmt.sh"]
