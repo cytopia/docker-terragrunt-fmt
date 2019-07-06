@@ -2,7 +2,7 @@ ifneq (,)
 .error This Makefile requires GNU Make.
 endif
 
-.PHONY: build rebuild lint test _test-tf-version _test-fmt-ok _test-fmt-fail tag pull login push enter
+.PHONY: build rebuild lint test _test-tf-version _test-fmt-ok _test-fmt-none _test-fmt-fail tag pull login push enter
 
 CURRENT_DIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
@@ -28,6 +28,7 @@ lint:
 test:
 	@$(MAKE) --no-print-directory _test-tf-version
 	@$(MAKE) --no-print-directory _test-fmt-ok
+	@$(MAKE) --no-print-directory _test-fmt-none
 	@$(MAKE) --no-print-directory _test-fmt-fail
 
 _test-tf-version:
@@ -79,6 +80,24 @@ _test-fmt-ok:
 	@echo "- Testing terragrunt-fmt (OK) [file]"
 	@echo "------------------------------------------------------------"
 	@if ! docker run --rm -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE) -write=false -list=true -check -diff terragrunt.hcl; then \
+		echo "Failed"; \
+		exit 1; \
+	fi; \
+	echo "Success";
+
+_test-fmt-none:
+	@echo "------------------------------------------------------------"
+	@echo "- Testing terragrunt-fmt (NONE) [recursive]"
+	@echo "------------------------------------------------------------"
+	@if ! docker run --rm -v $(CURRENT_DIR)/data:/data $(IMAGE) -write=false -list=true -check -diff -recursive; then \
+		echo "Failed"; \
+		exit 1; \
+	fi; \
+	echo "Success";
+	@echo "------------------------------------------------------------"
+	@echo "- Testing terragrunt-fmt (NONE) [dir]"
+	@echo "------------------------------------------------------------"
+	@if ! docker run --rm -v $(CURRENT_DIR)/data:/data $(IMAGE) -write=false -list=true -check -diff; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \

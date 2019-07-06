@@ -181,7 +181,7 @@ fix: _pull
 		-write -diff -recursive -ignore='$(IGNORE)'
 
 _pull:
-	docker pull cytopia/terraform-fmt:$(FMT_VERSION)
+	docker pull cytopia/terragrunt-fmt:$(FMT_VERSION)
 ```
 
 #### Travis CI integration
