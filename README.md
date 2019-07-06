@@ -63,7 +63,7 @@ The working directory inside the Docker container is **`/data/`** and should be 
 
 ## Usage
 ```
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt --help
+$ docker run --rm cytopia/terragrunt-fmt --help
 ```
 ```
 Usage: cytopia/terragrunt-fmt [options] [DIR]
