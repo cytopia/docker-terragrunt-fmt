@@ -17,7 +17,7 @@
 > [eslint](https://github.com/cytopia/docker-eslint) **•**
 > [file-lint](https://github.com/cytopia/docker-file-lint) **•**
 > [gofmt](https://github.com/cytopia/docker-gofmt) **•**
-> [goimports](https://github.com/cytopia/docker-php-cs-fixer) **•**
+> [goimports](https://github.com/cytopia/docker-goimports) **•**
 > [golint](https://github.com/cytopia/docker-golint) **•**
 > [jsonlint](https://github.com/cytopia/docker-jsonlint) **•**
 > [phpcbf](https://github.com/cytopia/docker-phpcbf) **•**
@@ -217,7 +217,7 @@ linter below for reproducible local or remote CI tests:
 | [ansible](https://github.com/cytopia/docker-ansible) | Ansible | Multiple versoins of Ansible |
 | [ansible-lint](https://github.com/cytopia/docker-ansible-lint) | Ansible | Lint  Ansible |
 | [gofmt](https://github.com/cytopia/docker-gofmt) | Go | Format Go source code **<sup>[1]</sup>** |
-| [goimports](https://github.com/cytopia/docker-php-cs-fixer) | Go | Format Go source code **<sup>[1]</sup>** |
+| [goimports](https://github.com/cytopia/docker-goimports) | Go | Format Go source code **<sup>[1]</sup>** |
 | [golint](https://github.com/cytopia/docker-golint) | Go | Lint Go code |
 | [eslint](https://github.com/cytopia/docker-eslint) | Javascript | Lint Javascript code |
 | [checkmake](https://github.com/cytopia/docker-checkmake) | Make | Lint Makefiles |
