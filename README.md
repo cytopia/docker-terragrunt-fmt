@@ -40,6 +40,7 @@ View **[Dockerfile](https://github.com/cytopia/docker-terragrunt-fmt/blob/master
 [![Docker hub](http://dockeri.co/image/cytopia/terragrunt-fmt?&kill_cache=1)](https://hub.docker.com/r/cytopia/terragrunt-fmt)
 
 Tiny Alpine-based multistage-build dockerized version of [Terraform](https://github.com/hashicorp/terraform)<sup>[1]</sup> with the ability to do `terraform fmt` on Terragrunt files (`.hcl`).
+The image is built nightly against multiple stable versions and pushed to Dockerhub.
 
 <sub>[1] Official project: https://github.com/hashicorp/terraform</sub>
 
@@ -231,6 +232,7 @@ linter below for reproducible local or remote CI tests:
 | [terragrunt-fmt](https://github.com/cytopia/docker-terragrunt-fmt) | Terraform | `terraform fmt` for Terragrunt files **<sup>[1]</sup>** |
 
 > **<sup>[1]</sup>** Uses a shell wrapper to add **enhanced functionality** not available by original project.
+
 
 ### Makefiles
 
