@@ -4,7 +4,7 @@
 [![Tag](https://img.shields.io/github/tag/cytopia/docker-terragrunt-fmt.svg)](https://github.com/cytopia/docker-terragrunt-fmt/releases)
 [![](https://images.microbadger.com/badges/version/cytopia/terragrunt-fmt:latest.svg?&kill_cache=1)](https://microbadger.com/images/cytopia/terragrunt-fmt:latest "terragrunt-fmt")
 [![](https://images.microbadger.com/badges/image/cytopia/terragrunt-fmt:latest.svg?&kill_cache=1)](https://microbadger.com/images/cytopia/terragrunt-fmt:latest "terragrunt-fmt")
-[![](https://img.shields.io/badge/github-cytopia%2Fdocker--terragrunt-fmt-red.svg)](https://github.com/cytopia/docker-terragrunt-fmt "github.com/cytopia/docker-terragrunt-fmt")
+[![](https://img.shields.io/badge/github-cytopia%2Fdocker--terragrunt--fmt-red.svg)](https://github.com/cytopia/docker-terragrunt-fmt "github.com/cytopia/docker-terragrunt-fmt")
 [![License](https://img.shields.io/badge/license-MIT-%233DA639.svg)](https://opensource.org/licenses/MIT)
 
 > #### All [#awesome-ci](https://github.com/topics/awesome-ci) Docker images
@@ -53,7 +53,6 @@ they always contain the latest stable version as shown below.
 |--------------|------------------------|
 | `latest`     | latest stable          |
 | `0.12`       | latest stable `0.12.x` |
-| `0.11`       | latest stable `0.11.x` |
 
 
 ## Docker mounts
@@ -165,7 +164,7 @@ endif
 CURRENT_DIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Adjust according to your needs
-IGNORE      = */.terragrunt-cache/*/.terraform/
+IGNORE      = */.terragrunt-cache/,*/.terraform/
 FMT_VERSION = latest
 
 help:
