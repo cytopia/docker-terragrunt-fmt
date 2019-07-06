@@ -33,7 +33,7 @@ RUN set -eux \
 	&& chmod +x /usr/bin/terraform
 
 # Use a clean tiny image to store artifacts in
-FROM alpine:3.9
+FROM alpine:3.8
 LABEL \
 	maintainer="cytopia <cytopia@everythingcli.org>" \
 	repo="https://github.com/cytopia/docker-terragrunt-fmt"
