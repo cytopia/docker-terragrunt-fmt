@@ -283,8 +283,10 @@ else
 		echo "[INFO] Finding files: for file in *.hcl; do"
 		ret=0
 		for file in *.hcl; do
-			if ! /fmt.sh "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${file}"; then
-				ret="1"
+			if [ -f "${file}" ]; then
+				if ! /fmt.sh "${ARG_LIST}" "${ARG_WRITE}" "${ARG_DIFF}" "${ARG_CHECK}" "${file}"; then
+					ret="1"
+				fi
 			fi
 		done
 		exit "${ret}"
