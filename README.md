@@ -40,6 +40,8 @@ View **[Dockerfile](https://github.com/cytopia/docker-terragrunt-fmt/blob/master
 [![Docker hub](http://dockeri.co/image/cytopia/terragrunt-fmt?&kill_cache=1)](https://hub.docker.com/r/cytopia/terragrunt-fmt)
 
 Tiny Alpine-based multistage-build dockerized version of [Terraform](https://github.com/hashicorp/terraform)<sup>[1]</sup> with the ability to do `terraform fmt` on Terragrunt files (`.hcl`).
+This is achieved by creating a temporary file within the container with an `.tf` extension and then running `terraform fmt` on it.
+Additionally the wrapper has been extended with a **`-ignore` argument** to be able to ignore files and directory or wildcards.
 The image is built nightly against multiple stable versions and pushed to Dockerhub.
 
 <sub>[1] Official project: https://github.com/hashicorp/terraform</sub>
@@ -98,56 +100,148 @@ Options:
 
 ## Examples
 
-#### List filenames that need to be fixed
+### List filenames that need to be fixed
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -list
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -list
+
+[INFO] Finding files: for file in *.hcl; do
+terraform fmt -list=true -write=true validate.hcl
+../tmp/validate.hcl.tf
 ```
 
-#### Show diff of files that need to be fixed
+### Show diff of files that need to be fixed
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -diff
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -diff
+
+[INFO] Finding files: for file in *.hcl; do
+terraform fmt -list=true -write=false -diff validate.hcl
+../tmp/validate.hcl.tf
+--- old/../tmp/validate.hcl.tf
++++ new/../tmp/validate.hcl.tf
+@@ -35,9 +35,9 @@
+ # which is not being used (disable_init)
+ remote_state {
+   backend = "s3"
+-  config   = {
+-    bucket   = "none"
+-    key     = "none"
++  config = {
++    bucket = "none"
++    key    = "none"
+     region = "eu-central-1"
+   }
 ```
 
-#### Fix files
+### Fix files
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write
+
+[INFO] Finding files: for file in *.hcl; do
+terraform fmt -list=true -write=true validate.hcl
+../tmp/validate.hcl.tf
 ```
 
-#### Fix files and show diff
+### Fix files and show diff
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write -diff
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write -diff
+
+[INFO] Finding files: for file in *.hcl; do
+terraform fmt -list=true -write=false -diff validate.hcl
+../tmp/validate.hcl.tf
+--- old/../tmp/validate.hcl.tf
++++ new/../tmp/validate.hcl.tf
+@@ -35,9 +35,9 @@
+ # which is not being used (disable_init)
+ remote_state {
+   backend = "s3"
+-  config   = {
+-    bucket   = "none"
+-    key     = "none"
++  config = {
++    bucket = "none"
++    key    = "none"
+     region = "eu-central-1"
+   }
 ```
 
-#### List filenames that need to be fixed recursively
+### List filenames that need to be fixed recursively
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -list -recursive
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -list -recursive
+
+[INFO] Finding files: find . -name '*.hcl' -type f
+terraform fmt -list=true -write=false ./prod/eu-central-1/microservice/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
+terraform fmt -list=true -write=false ./prod/eu-central-1/infra/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
 ```
 
-#### Show diff of files that need to be fixed recursively
+### Show diff of files that need to be fixed recursively
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -diff -recursive
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -diff -recursive
+
+[INFO] Finding files: find . -name '*.hcl' -type f
+terraform fmt -list=true -write=false -diff ./prod/eu-central-1/microservice/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
+--- old/../tmp/terragrunt.hcl.tf
++++ new/../tmp/terragrunt.hcl.tf
+@@ -1,5 +1,5 @@
+ terraform {
+-   source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
++  source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
+ }
+terraform fmt -list=true -write=false -diff ./prod/eu-central-1/infra/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
+--- old/../tmp/terragrunt.hcl.tf
++++ new/../tmp/terragrunt.hcl.tf
+@@ -1,5 +1,5 @@
+ terraform {
+-   source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
++  source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
+ }
 ```
 
-#### Fix recursively
+### Fix recursively
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write -recursive
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write -recursive
+
+[INFO] Finding files: find . -name '*.hcl' -type f
+terraform fmt -list=true -write=true ./prod/eu-central-1/microservice/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
+terraform fmt -list=true -write=true ./prod/eu-central-1/infra/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
 ```
 
-#### Ignore files and directories
+### Ignore files and directories
 
 Ignore all files named `terragrunt.hcl`.
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*terragrunt.hcl
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*terragrunt.hcl
+
+[INFO] Finding files: find . -not \( -path "./*terragrunt.hcl*" \) -name '*.hcl' -type f
+terraform fmt -list=true -write=false ./aws/validate.hcl
+../tmp/validate.hcl.tf
 ```
 
 Ignore all directories named `dev/` and everything inside.
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*/dev/
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*/dev/
+
+[INFO] Finding files: find . -not \( -path "./*/dev/*" \) -name '*.hcl' -type f
+terraform fmt -list=true -write=false ./prod/eu-central-1/microservice/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
+terraform fmt -list=true -write=false ./prod/eu-central-1/infra/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
 ```
 
 Ignore all directories named `dev/` and `testing/` and everything inside.
 ```bash
-docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*/dev/,*/testing/
+$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*/dev/,*/testing/
+
+[INFO] Finding files: find . -not \( -path "./*/dev/*" -o -path "./*/testing/*" \) -name '*.hcl' -type f
+terraform fmt -list=true -write=false ./prod/eu-central-1/microservice/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
+terraform fmt -list=true -write=false ./prod/eu-central-1/infra/terragrunt.hcl
+../tmp/terragrunt.hcl.tf
 ```
 
 
