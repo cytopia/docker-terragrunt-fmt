@@ -256,7 +256,7 @@ else
 
 		# evaluate ignore paths
 		if [ -n "${ARG_IGNORE}" ]; then
-			_EXCLUDE=" -not \( -path \"${ARG_PATH}/$( echo "${ARG_IGNORE}" | sed 's/,/*/g' )\" -o -path \"${ARG_PATH}\/}*\" \)"
+			_EXCLUDE=" -not \( -path \"${ARG_PATH}/$( echo "${ARG_IGNORE}" | sed "s/,/*\" -o -path \"${ARG_PATH}\//g" )*\" \)"
 		else
 			_EXCLUDE=""
 		fi
