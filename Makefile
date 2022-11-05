@@ -2,40 +2,116 @@ ifneq (,)
 .error This Makefile requires GNU Make.
 endif
 
-.PHONY: build rebuild lint test _test-tf-version _test-fmt-ok _test-fmt-none _test-fmt-fail tag pull login push enter
+# Ensure additional Makefiles are present
+MAKEFILES = Makefile.docker Makefile.lint
+$(MAKEFILES): URL=https://raw.githubusercontent.com/devilbox/makefiles/master/$(@)
+$(MAKEFILES):
+	@if ! (curl --fail -sS -o $(@) $(URL) || wget -O $(@) $(URL)); then \
+		echo "Error, curl or wget required."; \
+		echo "Exiting."; \
+		false; \
+	fi
+include $(MAKEFILES)
 
-CURRENT_DIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+# Set default Target
+.DEFAULT_GOAL := help
 
-DIR = .
-FILE = Dockerfile
-IMAGE = cytopia/terragrunt-fmt
+
+# -------------------------------------------------------------------------------------------------
+# Default configuration
+# -------------------------------------------------------------------------------------------------
+# Own vars
 TAG = latest
 
-build:
-	docker build --build-arg TF_VERSION=$(TAG) -t $(IMAGE) -f $(DIR)/$(FILE) $(DIR)
+# Makefile.docker overwrites
+NAME       = tg-fmt
+VERSION    = latest
+IMAGE      = cytopia/terragrunt-fmt
+FLAVOUR    = latest
+DIR        = Dockerfiles
 
-rebuild: pull
-	docker build --no-cache --build-arg TF_VERSION=$(TAG) -t $(IMAGE) -f $(DIR)/$(FILE) $(DIR)
+FILE = Dockerfile
 
-lint:
-	@docker run --rm -v $(CURRENT_DIR):/data cytopia/file-lint file-cr --text --ignore '.git/,.github/,tests/' --path .
-	@docker run --rm -v $(CURRENT_DIR):/data cytopia/file-lint file-crlf --text --ignore '.git/,.github/,tests/' --path .
-	@docker run --rm -v $(CURRENT_DIR):/data cytopia/file-lint file-trailing-single-newline --text --ignore '.git/,.github/,tests/' --path .
-	@docker run --rm -v $(CURRENT_DIR):/data cytopia/file-lint file-trailing-space --text --ignore '.git/,.github/,tests/' --path .
-	@docker run --rm -v $(CURRENT_DIR):/data cytopia/file-lint file-utf8 --text --ignore '.git/,.github/,tests/' --path .
-	@docker run --rm -v $(CURRENT_DIR):/data cytopia/file-lint file-utf8-bom --text --ignore '.git/,.github/,tests/' --path .
+# Building from master branch: Tag == 'latest'
+ifeq ($(strip $(TAG)),latest)
+	ifeq ($(strip $(VERSION)),latest)
+		DOCKER_TAG = latest
+	else
+		DOCKER_TAG = $(VERSION)
+	endif
+# Building from any other branch or tag: Tag == '<REF>'
+else
+	ifeq ($(strip $(VERSION)),latest)
+		DOCKER_TAG = latest-$(TAG)
+	else
+		DOCKER_TAG = $(VERSION)-$(TAG)
+	endif
+endif
 
-test:
-	@$(MAKE) --no-print-directory _test-tf-version
-	@$(MAKE) --no-print-directory _test-fmt-ok
-	@$(MAKE) --no-print-directory _test-fmt-none
-	@$(MAKE) --no-print-directory _test-fmt-fail
+# Makefile.lint overwrites
+FL_IGNORES  = .git/,.github/
+SC_IGNORES  = .git/,.github/
+JL_IGNORES  = .git/,.github/
 
+
+# -------------------------------------------------------------------------------------------------
+# Default Target
+# -------------------------------------------------------------------------------------------------
+.PHONY: help
+help:
+	@echo "lint                      Lint project files and repository"
+	@echo
+	@echo "build [ARCH=...] [TAG=...]               Build Docker image"
+	@echo "rebuild [ARCH=...] [TAG=...]             Build Docker image without cache"
+	@echo "push [ARCH=...] [TAG=...]                Push Docker image to Docker hub"
+	@echo
+	@echo "manifest-create [ARCHES=...] [TAG=...]   Create multi-arch manifest"
+	@echo "manifest-push [TAG=...]                  Push multi-arch manifest"
+	@echo
+	@echo "test [ARCH=...]                          Test built Docker image"
+	@echo
+
+
+# -------------------------------------------------------------------------------------------------
+#  Docker Targets
+# -------------------------------------------------------------------------------------------------
+.PHONY: build
+build: ARGS+=--build-arg VERSION=$(VERSION)
+build: docker-arch-build
+
+.PHONY: rebuild
+rebuild: ARGS+=--build-arg VERSION=$(VERSION)
+rebuild: docker-arch-rebuild
+
+.PHONY: push
+push: docker-arch-push
+
+
+# -------------------------------------------------------------------------------------------------
+#  Manifest Targets
+# -------------------------------------------------------------------------------------------------
+.PHONY: manifest-create
+manifest-create: docker-manifest-create
+
+.PHONY: manifest-push
+manifest-push: docker-manifest-push
+
+
+# -------------------------------------------------------------------------------------------------
+# Test Targets
+# -------------------------------------------------------------------------------------------------
+.PHONY: test
+test: _test-tf-version
+test: _test-fmt-ok
+test: _test-fmt-none
+test: _test-fmt-fail
+
+.PHONY: _test-tf-version
 _test-tf-version:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing correct Terraform version"
 	@echo "------------------------------------------------------------"
-	@if [ "$(TAG)" = "latest" ]; then \
+	@if [ "$(VERSION)" = "latest" ]; then \
 		echo "Fetching latest version from HashiCorp release page"; \
 		LATEST="$$( \
 			curl -L -sS https://releases.hashicorp.com/terraform/ \
@@ -46,24 +122,27 @@ _test-tf-version:
 			| tail -1 \
 		)"; \
 		echo "Testing for latest: $${LATEST}"; \
-		if ! docker run --rm $(IMAGE) --version | grep -E "^Terraform[[:space:]]*v?$${LATEST}$$"; then \
+		if ! docker run --rm --platform $(ARCH) $(IMAGE):$(DOCKER_TAG) --version | grep -E "^Terraform[[:space:]]*v?$${LATEST}$$"; then \
+			docker run --rm --platform $(ARCH) $(IMAGE):$(DOCKER_TAG) --version; \
 			echo "Failed"; \
 			exit 1; \
 		fi; \
 	else \
-		echo "Testing for tag: $(TAG)"; \
-		if ! docker run --rm $(IMAGE) --version | grep -E "^Terraform[[:space:]]*v?$(TAG)\.[.0-9]+$$"; then \
+		echo "Testing for tag: $(VERSION)"; \
+		if ! docker run --rm --platform $(ARCH) $(IMAGE):$(DOCKER_TAG) --version | grep -E "^Terraform[[:space:]]*v?$(VERSION)\.[.0-9]+$$"; then \
+			docker run --rm --platform $(ARCH) $(IMAGE):$(DOCKER_TAG) --version; \
 			echo "Failed"; \
 			exit 1; \
 		fi; \
 	fi; \
 	echo "Success"; \
 
+.PHONY: _test-fmt-ok
 _test-fmt-ok:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (OK) [recursive]"
 	@echo "------------------------------------------------------------"
-	@if ! docker run --rm -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE) -write=false -list=true -check -diff -recursive; then \
+	@if ! docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff -recursive; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
@@ -71,7 +150,7 @@ _test-fmt-ok:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (OK) [dir]"
 	@echo "------------------------------------------------------------"
-	@if ! docker run --rm -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE) -write=false -list=true -check -diff; then \
+	@if ! docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
@@ -79,17 +158,18 @@ _test-fmt-ok:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (OK) [file]"
 	@echo "------------------------------------------------------------"
-	@if ! docker run --rm -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE) -write=false -list=true -check -diff terragrunt.hcl; then \
+	@if ! docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/tests/ok:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff terragrunt.hcl; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
 	echo "Success";
 
+.PHONY: _test-fmt-none
 _test-fmt-none:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (NONE) [recursive]"
 	@echo "------------------------------------------------------------"
-	@if ! docker run --rm -v $(CURRENT_DIR)/data:/data $(IMAGE) -write=false -list=true -check -diff -recursive; then \
+	@if ! docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/Dockerfiles/data:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff -recursive; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
@@ -97,17 +177,18 @@ _test-fmt-none:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (NONE) [dir]"
 	@echo "------------------------------------------------------------"
-	@if ! docker run --rm -v $(CURRENT_DIR)/data:/data $(IMAGE) -write=false -list=true -check -diff; then \
+	@if ! docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/Dockerfiles/data:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
 	echo "Success";
 
+.PHONY: _test-fmt-fail
 _test-fmt-fail:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (FAIL) [recursive]"
 	@echo "------------------------------------------------------------"
-	@if docker run --rm -v $(CURRENT_DIR)/tests/fail:/data $(IMAGE) -write=false -list=true -check -diff -recursive; then \
+	@if docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/tests/fail:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff -recursive; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
@@ -115,7 +196,7 @@ _test-fmt-fail:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (FAIL) [dir]"
 	@echo "------------------------------------------------------------"
-	@if docker run --rm -v $(CURRENT_DIR)/tests/fail:/data $(IMAGE) -write=false -list=true -check -diff; then \
+	@if docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/tests/fail:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
@@ -123,26 +204,8 @@ _test-fmt-fail:
 	@echo "------------------------------------------------------------"
 	@echo "- Testing terragrunt-fmt (FAIL) [file]"
 	@echo "------------------------------------------------------------"
-	@if docker run --rm -v $(CURRENT_DIR)/tests/fail:/data $(IMAGE) -write=false -list=true -check -diff terragrunt.hcl; then \
+	@if docker run --rm --platform $(ARCH) -v $(CURRENT_DIR)/tests/fail:/data $(IMAGE):$(DOCKER_TAG) -write=false -list=true -check -diff terragrunt.hcl; then \
 		echo "Failed"; \
 		exit 1; \
 	fi; \
 	echo "Success";
-
-tag:
-	docker tag $(IMAGE) $(IMAGE):$(TAG)
-
-pull:
-	@grep -E '^\s*FROM' Dockerfile \
-		| sed -e 's/^FROM//g' -e 's/[[:space:]]*as[[:space:]]*.*$$//g' \
-		| xargs -n1 docker pull;
-
-login:
-	yes | docker login --username $(USER) --password $(PASS)
-
-push:
-	@$(MAKE) tag TAG=$(TAG)
-	docker push $(IMAGE):$(TAG)
-
-enter:
-	docker run --rm --name $(subst /,-,$(IMAGE)) -it --entrypoint=/bin/sh $(ARG) $(IMAGE):$(TAG)

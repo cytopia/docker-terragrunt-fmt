@@ -57,8 +57,8 @@ if [ "${_write}" = "1" ]; then
 	_PERM="$(stat -c %a "${_file}")"
 
 	# Adjust permissions of temporary file
-	chown ${_UID}:${_GID} "${_temp}"
-	chmod ${_PERM} "${_temp}"
+	chown "${_UID}:${_GID}" "${_temp}"
+	chmod "${_PERM}" "${_temp}"
 
 	# Overwrite existing file
 	mv -f "${_temp}" "${_file}"

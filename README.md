@@ -1,18 +1,20 @@
 # Docker image for `terragrunt-fmt`
 
-[![Build Status](https://travis-ci.com/cytopia/docker-terragrunt-fmt.svg?branch=master)](https://travis-ci.com/cytopia/docker-terragrunt-fmt)
 [![Tag](https://img.shields.io/github/tag/cytopia/docker-terragrunt-fmt.svg)](https://github.com/cytopia/docker-terragrunt-fmt/releases)
-[![](https://images.microbadger.com/badges/version/cytopia/terragrunt-fmt:latest.svg?&kill_cache=1)](https://microbadger.com/images/cytopia/terragrunt-fmt:latest "terragrunt-fmt")
-[![](https://images.microbadger.com/badges/image/cytopia/terragrunt-fmt:latest.svg?&kill_cache=1)](https://microbadger.com/images/cytopia/terragrunt-fmt:latest "terragrunt-fmt")
-[![](https://img.shields.io/docker/pulls/cytopia/terragrunt-fmt.svg)](https://hub.docker.com/r/cytopia/terragrunt-fmt)
 [![](https://img.shields.io/badge/github-cytopia%2Fdocker--terragrunt--fmt-red.svg)](https://github.com/cytopia/docker-terragrunt-fmt "github.com/cytopia/docker-terragrunt-fmt")
 [![License](https://img.shields.io/badge/license-MIT-%233DA639.svg)](https://opensource.org/licenses/MIT)
 
+[![lint](https://github.com/cytopia/docker-terragrunt-fmt/workflows/lint/badge.svg)](https://github.com/cytopia/docker-terragrunt-fmt/actions?query=workflow%3Alint)
+[![build](https://github.com/cytopia/docker-terragrunt-fmt/workflows/build/badge.svg)](https://github.com/cytopia/docker-terragrunt-fmt/actions?query=workflow%3Abuild)
+[![nightly](https://github.com/cytopia/docker-terragrunt-fmt/workflows/nightly/badge.svg)](https://github.com/cytopia/docker-terragrunt-fmt/actions?query=workflow%3Anightly)
+
+
 > #### All [#awesome-ci](https://github.com/topics/awesome-ci) Docker images
 >
-> [ansible][ansible-git-lnk] **•**
 > [ansible-lint][alint-git-lnk] **•**
+> [ansible][ansible-git-lnk] **•**
 > [awesome-ci][aci-git-lnk] **•**
+> [bandit][bandit-git-lnk] **•**
 > [black][black-git-lnk] **•**
 > [checkmake][cm-git-lnk] **•**
 > [eslint][elint-git-lnk] **•**
@@ -21,25 +23,26 @@
 > [goimports][gimp-git-lnk] **•**
 > [golint][glint-git-lnk] **•**
 > [jsonlint][jlint-git-lnk] **•**
+> [kubeval][kubeval-git-lnk] **•**
+> [linkcheck][linkcheck-git-lnk] **•**
+> [mypy][mypy-git-lnk] **•**
+> [php-cs-fixer][pcsf-git-lnk] **•**
 > [phpcbf][pcbf-git-lnk] **•**
 > [phpcs][pcs-git-lnk] **•**
 > [phplint][plint-git-lnk] **•**
-> [php-cs-fixer][pcsf-git-lnk] **•**
 > [pycodestyle][pycs-git-lnk] **•**
+> [pydocstyle][pyds-git-lnk] **•**
 > [pylint][pylint-git-lnk] **•**
 > [terraform-docs][tfdocs-git-lnk] **•**
-> [terragrunt][tg-git-lnk] **•**
 > [terragrunt-fmt][tgfmt-git-lnk] **•**
+> [terragrunt][tg-git-lnk] **•**
 > [yamlfmt][yfmt-git-lnk] **•**
 > [yamllint][ylint-git-lnk]
 
-> #### All [#awesome-ci](https://github.com/topics/awesome-ci) Makefiles
->
-> Visit **[cytopia/makefiles](https://github.com/cytopia/makefiles)** for seamless project integration, minimum required best-practice code linting and CI.
+View **[Dockerfiles](https://github.com/cytopia/docker-terragrunt-fmt/blob/master/Dockerfiles/)** on GitHub.
 
-View **[Dockerfile](https://github.com/cytopia/docker-terragrunt-fmt/blob/master/Dockerfile)** on GitHub.
 
-[![Docker hub](http://dockeri.co/image/cytopia/terragrunt-fmt?&kill_cache=1)](https://hub.docker.com/r/cytopia/terragrunt-fmt)
+**Available Architectures:**  `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x`
 
 Tiny Alpine-based multistage-build dockerized version of [Terraform](https://github.com/hashicorp/terraform)<sup>[1]</sup> with the ability to do `terraform fmt` on Terragrunt files (`.hcl`).
 This is achieved by creating a temporary file within the container with an `.tf` extension and then running `terraform fmt` on it.
@@ -48,192 +51,57 @@ The image is built nightly against multiple stable versions and pushed to Docker
 
 <sub>[1] Official project: https://github.com/hashicorp/terraform</sub>
 
+## :whale: Available Docker image versions
 
-## Available Docker image versions
+[![](https://img.shields.io/docker/pulls/cytopia/terragrunt-fmt.svg)](https://hub.docker.com/r/cytopia/terragrunt-fmt)
+[![Docker](https://badgen.net/badge/icon/:latest?icon=docker&label=cytopia/terragrunt-fmt)](https://hub.docker.com/r/cytopia/terragrunt-fmt)
 
-The following Docker image tags are rolling releases and built and updated nightly. This means
-they always contain the latest stable version as shown below.
+#### Rolling releaess
 
-| Docker tag   | Terraform version      |
-|--------------|------------------------|
-| `latest`     | latest stable          |
-| `0.12`       | latest stable `0.12.x` |
+The following Docker image tags are rolling releases and are built and updated every night.
 
+[![nightly](https://github.com/cytopia/docker-terragrunt-fmt/workflows/nightly/badge.svg)](https://github.com/cytopia/docker-terragrunt-fmt/actions?query=workflow%3Anightly)
 
-## Docker mounts
+| Docker Tag           | Git Ref   | terraform    | Available Architectures                      |
+|----------------------|-----------|--------------|----------------------------------------------|
+| `latest`             | master    | latest       | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.3`                | master    | **`1.3.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.2`                | master    | **`1.2.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.1`                | master    | **`1.1.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.0`                | master    | **`1.0.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.15`               | master    | **`0.15.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.14`               | master    | **`0.14.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.13`               | master    | **`0.13.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.12`               | master    | **`0.12.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
 
-The working directory inside the Docker container is **`/data/`** and should be mounted to your local filesystem where your Terragrant project resides.
-(See [Examples](#examples) for mount location usage.)
+#### Point in time releases
 
+The following Docker image tags are built once and can be used for reproducible builds. Its version never changes so you will have to update tags in your pipelines from time to time in order to stay up-to-date.
 
-## Usage
-```
-$ docker run --rm cytopia/terragrunt-fmt --help
-```
-```
-Usage: cytopia/terragrunt-fmt [options] [DIR]
-       cytopia/terragrunt-fmt --help
-       cytopia/terragrunt-fmt --version
+[![build](https://github.com/cytopia/docker-terragrunt-fmt/workflows/build/badge.svg)](https://github.com/cytopia/docker-terragrunt-fmt/actions?query=workflow%3Abuild)
 
-       Rewrites all Terragrunt configuration files to a canonical format. All
-       hcl configuration files (.hcl) are updated.
+| Docker Tag           | Git Ref      | terraform    | Available Architectures                      |
+|----------------------|--------------|--------------|----------------------------------------------|
+| `latest-<tag>`       | tag: `<tag>` | latest       | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.3-<tag>`          | tag: `<tag>` | **`1.3.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.2-<tag>`          | tag: `<tag>` | **`1.2.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.1-<tag>`          | tag: `<tag>` | **`1.1.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `1.0-<tag>`          | tag: `<tag>` | **`1.0.x`**  | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.15-<tag>`         | tag: `<tag>` | **`0.15.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.14-<tag>`         | tag: `<tag>` | **`0.14.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.13-<tag>`         | tag: `<tag>` | **`0.13.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
+| `0.12-<tag>`         | tag: `<tag>` | **`0.12.x`** | `amd64`, `i386`, `arm64`, `arm/v7`, `arm/v6`, `ppc64le`, `s390x` |
 
-       If DIR is not specified then the current working directory will be used.
-
-Options:
-
-  -list=true     List files whose formatting differs
-
-  -write=false   Don't write to source files
-                 (always disabled if using -check)
-
-  -diff          Display diffs of formatting changes
-
-  -check         Check if the input is formatted. Exit status will be 0 if all
-                 input is properly formatted and non-zero otherwise.
-
-  -recursive     Also process files in subdirectories. By default, only the
-                 given directory (or current directory) is processed.
-
-  -ignore=a,b    Comma separated list of paths to ignore.
-                 The wildcard character '*' is supported.
-```
+> Where `<tag>` refers to the chosen git tag from this repository.
 
 
-## Examples
+## :open_file_folder: Docker mounts
 
-### List filenames that need to be fixed
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -list
+The working directory inside the Docker container is **`/data/`** and should be mounted locally to
+the root of your project.
 
-[INFO] Finding files: for file in *.hcl; do
-terraform fmt -list=true -write=true validate.hcl
-../tmp/validate.hcl.tf
-```
 
-### Show diff of files that need to be fixed
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -diff
-
-[INFO] Finding files: for file in *.hcl; do
-terraform fmt -list=true -write=false -diff validate.hcl
-../tmp/validate.hcl.tf
---- old/../tmp/validate.hcl.tf
-+++ new/../tmp/validate.hcl.tf
-@@ -35,9 +35,9 @@
- # which is not being used (disable_init)
- remote_state {
-   backend = "s3"
--  config   = {
--    bucket   = "none"
--    key     = "none"
-+  config = {
-+    bucket = "none"
-+    key    = "none"
-     region = "eu-central-1"
-   }
-```
-
-### Fix files
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write
-
-[INFO] Finding files: for file in *.hcl; do
-terraform fmt -list=true -write=true validate.hcl
-../tmp/validate.hcl.tf
-```
-
-### Fix files and show diff
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write -diff
-
-[INFO] Finding files: for file in *.hcl; do
-terraform fmt -list=true -write=false -diff validate.hcl
-../tmp/validate.hcl.tf
---- old/../tmp/validate.hcl.tf
-+++ new/../tmp/validate.hcl.tf
-@@ -35,9 +35,9 @@
- # which is not being used (disable_init)
- remote_state {
-   backend = "s3"
--  config   = {
--    bucket   = "none"
--    key     = "none"
-+  config = {
-+    bucket = "none"
-+    key    = "none"
-     region = "eu-central-1"
-   }
-```
-
-### List filenames that need to be fixed recursively
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -list -recursive
-
-[INFO] Finding files: find . -name '*.hcl' -type f
-terraform fmt -list=true -write=false ./prod/eu-central-1/microservice/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
-terraform fmt -list=true -write=false ./prod/eu-central-1/infra/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
-```
-
-### Show diff of files that need to be fixed recursively
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -diff -recursive
-
-[INFO] Finding files: find . -name '*.hcl' -type f
-terraform fmt -list=true -write=false -diff ./prod/eu-central-1/microservice/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
---- old/../tmp/terragrunt.hcl.tf
-+++ new/../tmp/terragrunt.hcl.tf
-@@ -1,5 +1,5 @@
- terraform {
--   source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
-+  source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
- }
-terraform fmt -list=true -write=false -diff ./prod/eu-central-1/infra/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
---- old/../tmp/terragrunt.hcl.tf
-+++ new/../tmp/terragrunt.hcl.tf
-@@ -1,5 +1,5 @@
- terraform {
--   source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
-+  source  = "github.com/cytopia/terraform-aws-iam-cross-account?ref=v0.1.3"
- }
-```
-
-### Fix recursively
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -write -recursive
-
-[INFO] Finding files: find . -name '*.hcl' -type f
-terraform fmt -list=true -write=true ./prod/eu-central-1/microservice/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
-terraform fmt -list=true -write=true ./prod/eu-central-1/infra/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
-```
-
-### Ignore files and directories
-
-Ignore all files named `terragrunt.hcl`.
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*terragrunt.hcl
-
-[INFO] Finding files: find . -not \( -path "./*terragrunt.hcl*" \) -name '*.hcl' -type f
-terraform fmt -list=true -write=false ./aws/validate.hcl
-../tmp/validate.hcl.tf
-```
-
-Ignore all directories named `dev/` and everything inside.
-```bash
-$ docker run --rm -v $(pwd):/data cytopia/terragrunt-fmt -recursive -ignore=*/dev/
-
-[INFO] Finding files: find . -not \( -path "./*/dev/*" \) -name '*.hcl' -type f
-terraform fmt -list=true -write=false ./prod/eu-central-1/microservice/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
-terraform fmt -list=true -write=false ./prod/eu-central-1/infra/terragrunt.hcl
-../tmp/terragrunt.hcl.tf
-```
+## :computer: Usage
 
 Ignore all directories named `dev/` and `testing/` and everything inside.
 ```bash
@@ -296,7 +164,7 @@ script:
 ```
 
 
-## Related [#awesome-ci](https://github.com/topics/awesome-ci) projects
+## :arrows_counterclockwise: Related [#awesome-ci](https://github.com/topics/awesome-ci) projects
 
 ### Docker images
 
@@ -307,6 +175,7 @@ linter below for reproducible local or remote CI tests:
 |--------|-----------|------|-------------|
 | [awesome-ci][aci-git-lnk]        | [![aci-hub-img]][aci-hub-lnk]         | Basic      | Tools for git, file and static source code analysis |
 | [file-lint][flint-git-lnk]       | [![flint-hub-img]][flint-hub-lnk]     | Basic      | Baisc source code analysis |
+| [linkcheck][linkcheck-git-lnk]   | [![linkcheck-hub-img]][flint-hub-lnk] | Basic      | Search for URLs in files and validate their HTTP status code |
 | [ansible][ansible-git-lnk]       | [![ansible-hub-img]][ansible-hub-lnk] | Ansible    | Multiple versions and flavours of Ansible |
 | [ansible-lint][alint-git-lnk]    | [![alint-hub-img]][alint-hub-lnk]     | Ansible    | Lint Ansible |
 | [gofmt][gfmt-git-lnk]            | [![gfmt-hub-img]][gfmt-hub-lnk]       | Go         | Format Go source code **<sup>[1]</sup>** |
@@ -314,13 +183,17 @@ linter below for reproducible local or remote CI tests:
 | [golint][glint-git-lnk]          | [![glint-hub-img]][glint-hub-lnk]     | Go         | Lint Go code |
 | [eslint][elint-git-lnk]          | [![elint-hub-img]][elint-hub-lnk]     | Javascript | Lint Javascript code |
 | [jsonlint][jlint-git-lnk]        | [![jlint-hub-img]][jlint-hub-lnk]     | JSON       | Lint JSON files **<sup>[1]</sup>** |
+| [kubeval][kubeval-git-lnk]       | [![kubeval-hub-img]][kubeval-hub-lnk] | K8s        | Lint Kubernetes files |
 | [checkmake][cm-git-lnk]          | [![cm-hub-img]][cm-hub-lnk]           | Make       | Lint Makefiles |
 | [phpcbf][pcbf-git-lnk]           | [![pcbf-hub-img]][pcbf-hub-lnk]       | PHP        | PHP Code Beautifier and Fixer |
 | [phpcs][pcs-git-lnk]             | [![pcs-hub-img]][pcs-hub-lnk]         | PHP        | PHP Code Sniffer |
 | [phplint][plint-git-lnk]         | [![plint-hub-img]][plint-hub-lnk]     | PHP        | PHP Code Linter **<sup>[1]</sup>** |
 | [php-cs-fixer][pcsf-git-lnk]     | [![pcsf-hub-img]][pcsf-hub-lnk]       | PHP        | PHP Coding Standards Fixer |
+| [bandit][bandit-git-lnk]         | [![bandit-hub-img]][bandit-hub-lnk]   | Python     | A security linter from PyCQA
 | [black][black-git-lnk]           | [![black-hub-img]][black-hub-lnk]     | Python     | The uncompromising Python code formatter |
+| [mypy][mypy-git-lnk]             | [![mypy-hub-img]][mypy-hub-lnk]       | Python     | Static source code analysis |
 | [pycodestyle][pycs-git-lnk]      | [![pycs-hub-img]][pycs-hub-lnk]       | Python     | Python style guide checker |
+| [pydocstyle][pyds-git-lnk]       | [![pyds-hub-img]][pyds-hub-lnk]       | Python     | Python docstyle checker |
 | [pylint][pylint-git-lnk]         | [![pylint-hub-img]][pylint-hub-lnk]   | Python     | Python source code, bug and quality checker |
 | [terraform-docs][tfdocs-git-lnk] | [![tfdocs-hub-img]][tfdocs-hub-lnk]   | Terraform  | Terraform doc generator (TF 0.12 ready) **<sup>[1]</sup>** |
 | [terragrunt][tg-git-lnk]         | [![tg-hub-img]][tg-hub-lnk]           | Terraform  | Terragrunt and Terraform |
@@ -338,6 +211,10 @@ linter below for reproducible local or remote CI tests:
 [flint-hub-img]: https://img.shields.io/docker/pulls/cytopia/file-lint.svg
 [flint-hub-lnk]: https://hub.docker.com/r/cytopia/file-lint
 
+[linkcheck-git-lnk]: https://github.com/cytopia/docker-linkcheck
+[linkcheck-hub-img]: https://img.shields.io/docker/pulls/cytopia/linkcheck.svg
+[linkcheck-hub-lnk]: https://hub.docker.com/r/cytopia/linkcheck
+
 [jlint-git-lnk]: https://github.com/cytopia/docker-jsonlint
 [jlint-hub-img]: https://img.shields.io/docker/pulls/cytopia/jsonlint.svg
 [jlint-hub-lnk]: https://hub.docker.com/r/cytopia/jsonlint
@@ -349,6 +226,10 @@ linter below for reproducible local or remote CI tests:
 [alint-git-lnk]: https://github.com/cytopia/docker-ansible-lint
 [alint-hub-img]: https://img.shields.io/docker/pulls/cytopia/ansible-lint.svg
 [alint-hub-lnk]: https://hub.docker.com/r/cytopia/ansible-lint
+
+[kubeval-git-lnk]: https://github.com/cytopia/docker-kubeval
+[kubeval-hub-img]: https://img.shields.io/docker/pulls/cytopia/kubeval.svg
+[kubeval-hub-lnk]: https://hub.docker.com/r/cytopia/kubeval
 
 [gfmt-git-lnk]: https://github.com/cytopia/docker-gofmt
 [gfmt-hub-img]: https://img.shields.io/docker/pulls/cytopia/gofmt.svg
@@ -386,13 +267,25 @@ linter below for reproducible local or remote CI tests:
 [pcsf-hub-img]: https://img.shields.io/docker/pulls/cytopia/php-cs-fixer.svg
 [pcsf-hub-lnk]: https://hub.docker.com/r/cytopia/php-cs-fixer
 
+[bandit-git-lnk]: https://github.com/cytopia/docker-bandit
+[bandit-hub-img]: https://img.shields.io/docker/pulls/cytopia/bandit.svg
+[bandit-hub-lnk]: https://hub.docker.com/r/cytopia/bandit
+
 [black-git-lnk]: https://github.com/cytopia/docker-black
 [black-hub-img]: https://img.shields.io/docker/pulls/cytopia/black.svg
 [black-hub-lnk]: https://hub.docker.com/r/cytopia/black
 
+[mypy-git-lnk]: https://github.com/cytopia/docker-mypy
+[mypy-hub-img]: https://img.shields.io/docker/pulls/cytopia/mypy.svg
+[mypy-hub-lnk]: https://hub.docker.com/r/cytopia/mypy
+
 [pycs-git-lnk]: https://github.com/cytopia/docker-pycodestyle
 [pycs-hub-img]: https://img.shields.io/docker/pulls/cytopia/pycodestyle.svg
 [pycs-hub-lnk]: https://hub.docker.com/r/cytopia/pycodestyle
+
+[pyds-git-lnk]: https://github.com/cytopia/docker-pydocstyle
+[pyds-hub-img]: https://img.shields.io/docker/pulls/cytopia/pydocstyle.svg
+[pyds-hub-lnk]: https://hub.docker.com/r/cytopia/pydocstyle
 
 [pylint-git-lnk]: https://github.com/cytopia/docker-pylint
 [pylint-hub-img]: https://img.shields.io/docker/pulls/cytopia/pylint.svg
@@ -425,7 +318,8 @@ Visit **[cytopia/makefiles](https://github.com/cytopia/makefiles)** for dependen
 The provided Makefiles will only require GNU Make and Docker itself removing the need to install anything else.
 
 
-## License
+## :page_facing_up: License
+
 
 **[MIT License](LICENSE)**
 
